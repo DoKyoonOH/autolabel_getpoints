@@ -29,6 +29,9 @@ def main():
     grd_gtf_list = glob(os.path.join(groundTruth_path, '*', '*.png'))
     atl_gtf_list = glob(os.path.join(autoLabel_path, '*', '*.png'))
 
+    IoU_list = []
+    IoU_value_list = []
+    show_only_iou_list = []
 
     for grd_path, atl_path in zip(grd_gtf_list, atl_gtf_list):
         # print(f"grd_path: {grd_path} atl_path: {atl_path}")
@@ -46,8 +49,8 @@ def main():
         atl_gtf[atl_gtf != target_class_num] = 0
         atl_gtf[atl_gtf == target_class_num] = 1 
 
-
-        if [1] in np.unique(grd_gtf) :
+        
+        if [1] in np.unique(grd_gtf) or [1] in np.unique(atl_gtf) :
 
             # 교집합
             intersection = cv2.countNonZero(cv2.bitwise_and(grd_gtf, atl_gtf))
@@ -57,6 +60,20 @@ def main():
 
             IoU = intersection/union
             print(f"file: {os.path.basename(grd_path)},IoU: {IoU}")
+            IoU_list.append([os.path.basename(grd_path), IoU])
+            IoU_value_list.append(IoU)
+
+            show_only_iou_list.append(IoU)
+    
+    # print(f"iou list: {IoU_list}")
+    
+    for i in list(range(len(show_only_iou_list))):
+        print(show_only_iou_list[i])
+
+
+    print(f"mIoU: {np.mean(IoU_value_list)}({np.mean(IoU_value_list)*100}%)")
+            
+            
             
             # 계산된 결과를 .csv 파일로 저장해줍니다.
             

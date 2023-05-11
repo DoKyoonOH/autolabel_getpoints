@@ -495,57 +495,51 @@ class AutoLabelButton :
     def roi256PressPoint(self, event):
 
         try : 
-
-            self.x_r256, self.y_r256 = getScaledPoint(event, self.scale)
-            if self.x_r256 < 128 and self.y_r256 < 128 :
+            x, y = getScaledPoint(event, self.scale)
+            if x < 128 and y < 128 :
+                print("x < 128 and y < 128")
                 self.rect_start = 0, 0
-                self.rect_end = self.x_r256+128, self.y_r256+128
-            elif self.x_r256 < 128 :
-                self.rect_start = 0, self.y_r256-128
-                self.rect_end = self.x_r256+128, self.y_r256+128
-            elif self.y_r256 < 128 :
-                self.rect_start = self.x_r256-128, 0
-                self.rect_end = self.x_r256+128, self.y_r256+128 
+                print(self.rect_start)
+                print(type(self.rect_start))
+                self.rect_end = x+128, y+128
+            elif x < 128 :
+                print("x < 128")
+                self.rect_start = 0, y-128
+                self.rect_end = x+128, y+128
+            elif y < 128 :
+                print("y < 128")
+                self.rect_start = x-128, 0
+                self.rect_end = x+128, y+128 
             else :
-                self.rect_start = self.x_r256-128, self.y_r256-128
-                self.rect_end = self.x_r256+128, self.y_r256+128
-
+                print("dang")
+                self.rect_start = x-128, y-128
+                self.rect_end = x+128, y+128
             
-            result = inference_segmentor(self.model, self.img[self.rect_start[1]: self.rect_end[1],
-                                            self.rect_start[0]: self.rect_end[0], :])
-
-            print(f'modelListindex {self.label_segmentation-1}')
-
+            result = inference_segmentor(self.model, self.img)
             cv2.imshow("cropImage", self.img[self.rect_start[1]: self.rect_end[1],
                                             self.rect_start[0]: self.rect_end[0], :])
             
-
             print(f'cropImage.shape {self.img[self.rect_start[1]: self.rect_end[1], self.rect_start[0]: self.rect_end[0], :].shape}')
             
-
             idx = np.argwhere(result[0] == 1)
             y_idx, x_idx = idx[:, 0], idx[:, 1]
-            x_idx = x_idx + self.rect_start[0]
-            y_idx = y_idx + self.rect_start[1]
-
-            self.label[y_idx, x_idx] = self.label_segmentation # label_palette 의 인덱스 색깔로 표현
+            # x_idx = x_idx + self.rect_start[0]
+            # y_idx = y_idx + self.rect_start[1]
+            self.label[y_idx, x_idx] = 1
             
             self.colormap = blendImageWithColorMap(self.img, self.label, self.label_palette, self.alpha)
             self.pixmap = QPixmap(cvtArrayToQImage(self.colormap))
             self.resize_image()
-
-
             thickness = 2    
-
             rect_256 = cv2.rectangle(
                 self.colormap.copy(), self.rect_start, self.rect_end, (255, 255, 255), thickness)
-
             print(f"rectangle size {self.rect_start, self.rect_end}")
             self.pixmap = QPixmap(cvtArrayToQImage(rect_256))
             self.resize_image()
             
         except ZeroDivisionError as e :
             print(e)
+
 
         
     def roiPressPoint(self, event):

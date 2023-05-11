@@ -167,7 +167,7 @@ class MainWindow(QMainWindow, form_class_main,
 
         # 7. auto label tools 
         self.roiMenu = QMenu()
-        self.roiMenu.addAction("256*256", self.roi256)
+        self.roiMenu.addAction("Full", self.roi256)
         self.roiMenu.addAction("Set Rectangle", self.roiRec)
         self.roiAutoLabelButton.setMenu(self.roiMenu)
         self.roiAutoLabelButton.clicked.connect(self.showRoiMenu)
